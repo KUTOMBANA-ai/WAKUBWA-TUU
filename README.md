@@ -1,98 +1,72 @@
 # WAKUBWA-TUU
 Chagua mkoa wako ili upate pisikali ya mtaani kwako sasahivi uttombe
-{
-  "regions": [
-    {
-      "name": "Arusha",
-      "districts": [
-        {
-          "name": "Arusha Urban",
-          "wards": [
-            { "name": "Kati", "message": "" },
-            { "name": "Sombetini", "message": "" },
-            { "name": "Urunduru", "message": "" }
-          ]
-        },
-        {
-          "name": "Karatu",
-          "wards": [
-            { "name": "Karatu", "message": "" },
-            { "name": "Mang'ola", "message": "" }
-          ]
-        }
-      ]
-    },
-    {
-      "name": "Dar es Salaam",
-      "districts": [
-        {
-          "name": "Kinondoni",
-          "wards": [
-            { "name": "Mikocheni", "message": "" },
-            { "name": "Magomeni", "message": "" },
-            { "name": "Kigogo", "message": "" }
-          ]
-        },
-        {
-          "name": "Ilala",
-          "wards": [
-            { "name": "Upanga East", "message": "" },
-            { "name": "Upanga West", "message": "" },
-            { "name": "Jangwani", "message": "" }
-          ]
-        }
-      ]
-    }
-    // na mikoa mingine ifuatayo...
-  ]
-}
-    const districtsContainer = regionElement.querySelector('.districts');
-    if (districtsContainer) {
-      districtsContainer.style.display = districtsContainer.style.display === 'none' ? 'block' : 'none';
-    }
-  }
+import React, { useState, useEffect } from "react";
 
-  function toggleVillages(regionName, districtName) {
-    const regionElement = document.getElementById(regionName);
-    const districtElement = regionElement.querySelector(`#${districtName}`);
-    const villagesContainer = districtElement.querySelector('.villages');
-    if (villagesContainer) {
-      villagesContainer.style.display = villagesContainer.style.display === 'none' ? 'block' : 'none';
-    }
-  }
+export default function App() { const menuItems = ["Option 1", "Option 2", "Option 3"]; const [selectedIdx, setSelectedIdx] = useState(0); const [messages, setMessages] = useState(() => { const saved = localStorage.getItem("menu_messages"); return saved ? JSON.parse(saved) : menuItems.map(() => ""); }); const [input, setInput] = useState(messages[0] || "");
 
-  function showMessage() {
-    message.style.display = 'block';
-    setTimeout(() => {
-      message.style.display = 'none';
-    }, 5000);
-  }
+useEffect(() => { localStorage.setItem("menu_messages", JSON.stringify(messages)); }, [messages]);
 
-  function buildRegions() {
-    for (const regionName in data) {
-      const regionElement = createRegionElement(regionName);
-      regionElement.id = regionName;
-      const districtsContainer = document.createElement('div');
-      districtsContainer.classList.add('districts');
-      for (const districtName in data[regionName]) {
-        const districtElement = createDistrictElement(regionName, districtName);
-        districtElement.id = districtName;
-        const villagesContainer = document.createElement('div');
-        villagesContainer.classList.add('villages');
-        data[regionName][districtName].forEach(villageName => {
-          const villageElement = createVillageElement(regionName, districtName, villageName);
-          villagesContainer.appendChild(villageElement);
-        });
-        districtElement.appendChild(villagesContainer);
-        districtsContainer.appendChild(districtElement);
-      }
-      regionElement.appendChild(districtsContainer);
-      regionsContainer.appendChild(regionElement);
-    }
-  }
+function selectMenu(idx) { setSelectedIdx(idx); setInput(messages[idx] || ""); }
 
-  buildRegions();
-</script>
+function saveMessage() { const newMessages = [...messages]; newMessages[selectedIdx] = input; setMessages(newMessages); alert("Ujumbe umehifadhiwa!"); }
 
-</body>
-</html>
+function replayMessage() { setInput(messages[selectedIdx] || ""); alert("Ujumbe ume-replay!"); }
+
+return ( <div style={{ fontFamily: "sans-serif", padding: 20 }}> <h1>Menu Replay App with LocalStorage</h1>
+
+<div style={{ marginBottom: 20 }}>
+    {menuItems.map((item, idx) => (
+      <button
+        key={idx}
+        onClick={() => selectMenu(idx)}
+        style={{
+          marginRight: 8,
+          marginBottom: 8,
+          padding: "6px 12px",
+          background: idx === selectedIdx ? "#111827" : "#fff",
+          color: idx === selectedIdx ? "#fff" : "#111827",
+          borderRadius: 6,
+          border: "1px solid #ddd"
+        }}
+      >
+        {item}
+      </button>
+    ))}
+  </div>
+
+  <div>
+    <textarea
+      value={input}
+      onChange={(e) => setInput(e.target.value)}
+      rows={5}
+      style={{ width: "100%", padding: 8, borderRadius: 6, border: "1px solid #ddd" }}
+      placeholder="Andika ujumbe hapa..."
+    />
+  </div>
+
+  <div style={{ marginTop: 10 }}>
+    <button onClick={saveMessage} style={{ padding: "6px 12px", borderRadius: 6 }}>
+      Save
+    </button>
+    <button
+      onClick={replayMessage}
+      style={{ marginLeft: 8, padding: "6px 12px", borderRadius: 6 }}
+    >
+      Replay
+    </button>
+  </div>
+
+  <div style={{ marginTop: 20 }}>
+    <h4>Preview Messages:</h4>
+    <ul>
+      {menuItems.map((item, idx) => (
+        <li key={idx}>
+          <strong>{item}:</strong> {messages[idx] || "(no message)"}
+        </li>
+      ))}
+    </ul>
+  </div>
+</div>
+
+); }
+
